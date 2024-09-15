@@ -2,7 +2,6 @@ import { useState } from "react";
 import Navbar from "../components/Navbar";
 import { generateLyricsWithCohere } from '../api/cohereService';
 import { FiClipboard } from 'react-icons/fi';
-import backgroundImage from '../../public/assets/designer-1.jpeg'; // Adjust the path as needed
 
 
 const genres = [
@@ -105,9 +104,10 @@ const HomePage = () => {
     <div
         className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center px-4 sm:px-6 pt-10"
         style={{
-          backgroundImage: `url(${backgroundImage})`,
+          backgroundImage: "url('/images/designer-1.jpeg')",
           backgroundBlendMode: "overlay",
         }}
+        
       >
       <Navbar />
 
