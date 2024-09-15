@@ -102,12 +102,12 @@ const HomePage = () => {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center px-4 sm:px-6 pt-10"
-      style={{
-        backgroundImage: "url('/public/assets/designer (1).jpeg')", // Adjust the background image path
-        backgroundBlendMode: "overlay",
-      }}
-    >
+        className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center px-4 sm:px-6 pt-10"
+        style={{
+          backgroundImage: "url('/public/assets/designer-1.jpeg')", // Path adjusted for Vite
+          backgroundBlendMode: "overlay",
+        }}
+      >
       <Navbar />
 
       <div className="text-center pt-10 flex flex-col items-center w-full">
