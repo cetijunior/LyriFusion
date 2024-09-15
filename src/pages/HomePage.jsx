@@ -24,7 +24,6 @@ const HomePage = () => {
       setIsLoading(false);
     }
   };
-  
 
   return (
     <div
@@ -63,16 +62,16 @@ const HomePage = () => {
               <label className="block text-purple-800 text-lg font-medium mb-2">
                 Genre
               </label>
-              <div className="flex flex-col space-y-3">
+              <div className="flex flex-col items-center space-y-3">
                 <input
-                  className="border border-gray-400 bg-gray-100 text-gray-900 placeholder-gray-500 rounded-lg w-full py-3 px-5 text-base focus:outline-none focus:ring-4 focus:ring-purple-500 transition-all duration-300"
+                  className="border-2 border-purple-400 bg-inherit text-gray-900 placeholder-gray-700 rounded-lg w-full py-3 px-5 text-base focus:outline-none focus:ring-4 focus:ring-purple-500 transition-all duration-300"
                   type="text"
                   placeholder="e.g., Pop, Rock"
                   value={genre}
                   onChange={(e) => setGenre(e.target.value)}
                 />
                 <button
-                  className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-all duration-300"
+                  className="bg-purple-500 w-1/2 sm:w-1/3 items-center text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-all duration-300"
                   onClick={() => setGenre("Pop")} // Sample random genre logic
                 >
                   Random Genre
@@ -86,7 +85,7 @@ const HomePage = () => {
               </label>
               <div className="flex flex-col space-y-3">
                 <input
-                  className="border border-gray-400 bg-gray-100 text-gray-900 placeholder-gray-500 rounded-lg w-full py-3 px-5 text-base focus:outline-none focus:ring-4 focus:ring-purple-500 transition-all duration-300"
+                  className="border-2 border-purple-400 bg-inherit text-gray-900 placeholder-gray-700 rounded-lg w-full py-3 px-5 text-base focus:outline-none focus:ring-4 focus:ring-purple-500 transition-all duration-300"
                   type="text"
                   placeholder="e.g., Slow, Fast"
                   value={tempo}
@@ -109,21 +108,21 @@ const HomePage = () => {
               </label>
               <div className="flex flex-col space-y-3">
                 <input
-                  className="border border-gray-400 bg-gray-100 text-gray-900 placeholder-gray-500 rounded-lg w-full py-3 px-5 text-base focus:outline-none focus:ring-4 focus:ring-purple-500 transition-all duration-300"
+                  className="border-2 border-purple-400 bg-inherit text-gray-900 placeholder-gray-700 rounded-lg w-full py-3 px-5 text-base focus:outline-none focus:ring-4 focus:ring-purple-500 transition-all duration-300"
                   type="text"
                   placeholder="e.g., Love, Night, Dream"
                   value={baseWords}
                   onChange={(e) => setBaseWords(e.target.value)}
                 />
-                <div className="flex justify-between space-x-3">
+                <div className="flex justify-evenly space-x-3">
                   <button
-                    className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-all duration-300"
+                    className="bg-purple-500 w-1/2 sm:w-1/3 items-center text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-all duration-300"
                     onClick={() => setBaseWords("Love")}
                   >
                     Word
                   </button>
                   <button
-                    className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-all duration-300"
+                    className="bg-purple-500 w-1/2 sm:w-1/3 items-center text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-all duration-300"
                     onClick={() => setBaseWords("Night, Dream")}
                   >
                     Suggestions
