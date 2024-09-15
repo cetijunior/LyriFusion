@@ -74,7 +74,7 @@ const HomePage = () => {
     <div
       className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center px-4 sm:px-6 pt-10"
       style={{
-        backgroundImage: "url('/public/images/designer (1).jpeg')", // Adjust the background image path
+        backgroundImage: "url('src/assets/designer (1).jpeg')", // Adjust the background image path
         backgroundBlendMode: "overlay",
       }}
     >
