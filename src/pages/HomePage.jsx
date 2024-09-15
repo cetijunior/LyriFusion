@@ -62,6 +62,7 @@ const HomePage = () => {
       // If there are existing lyrics, modify the prompt to take inspiration without repeating them
       if (lyrics.length > 0) {
         const previousSection = lyrics[lyrics.length - 1].text;
+        // eslint-disable-next-line no-unused-vars
         prompt = `Write a ${sectionType} inspired by the following content without repeating it:\n\n"${previousSection}". Ensure it adds to the story of the song.`;
       }
 
@@ -103,13 +104,13 @@ const HomePage = () => {
     <div
       className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center px-4 sm:px-6 pt-10"
       style={{
-        backgroundImage: "url('src/assets/designer (1).jpeg')", // Adjust the background image path
+        backgroundImage: "url('/public/assets/designer (1).jpeg')", // Adjust the background image path
         backgroundBlendMode: "overlay",
       }}
     >
       <Navbar />
 
-      <div className="text-center lg:pt-0 pt-10 flex flex-col items-center w-full">
+      <div className="text-center pt-10 flex flex-col items-center w-full">
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-purple-800 mb-6 transition-all duration-500 ease-in-out">
           LyriFusion
         </h1>
@@ -216,6 +217,8 @@ const HomePage = () => {
         {/* Generated Lyrics or Error Message */}
         <div className="flex flex-col justify-center mt-8 p-6 bg-white bg-opacity-20 backdrop-blur-lg rounded-lg shadow-md">
          
+                   {/* Single Copy All Button */}
+
         {hasGenerated && (
             <div className="flex justify-end ">
               <button
@@ -267,8 +270,6 @@ const HomePage = () => {
               </button>
             </div>
           )}
-
-          {/* Single Copy All Button */}
           
         </div>
       </div>
