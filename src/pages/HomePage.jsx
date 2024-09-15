@@ -3,6 +3,17 @@ import Navbar from "../components/Navbar";
 import { generateLyricsWithCohere } from '../api/cohereService';
 import { FiClipboard } from 'react-icons/fi';
 
+
+const genres = [
+  "Pop", "Rock", "Hip-Hop", "Jazz", "Classical", "Blues", "Country",
+  "Reggae", "R&B", "Electronic", "Folk", "Metal", "Soul", "Punk", "Latin",
+  "Dance", "Indie", "Gospel", "Funk", "Disco", "Grunge", "Ska", "Alternative"
+];
+
+const commonWords = ["Love", "Night", "Dream", "Heart", "Star", "Light", "Moon", "Fire", "Sky", "Tears", "Rain"];
+const wordCombinations = ["Broken heart", "Endless night", "Shining star", "Burning fire", "Lonely sky", "Falling rain", "Midnight dream", "Golden light"];
+
+
 const HomePage = () => {
   const [genre, setGenre] = useState("");
   const [tempo, setTempo] = useState("");
@@ -21,6 +32,24 @@ const HomePage = () => {
     }).catch((err) => {
       console.error("Failed to copy lyrics: ", err);
     });
+  };
+
+  // Function to handle random genre
+  const handleRandomGenre = () => {
+    const randomGenre = genres[Math.floor(Math.random() * genres.length)];
+    setGenre(randomGenre);
+  };
+
+  // Function to handle Word button
+  const handleWord = () => {
+    const randomWord = commonWords[Math.floor(Math.random() * commonWords.length)];
+    setBaseWords(randomWord);
+  };
+
+  // Function to handle Suggestions button
+  const handleSuggestions = () => {
+    const randomSuggestion = wordCombinations[Math.floor(Math.random() * wordCombinations.length)];
+    setBaseWords(randomSuggestion);
   };
 
   // Function to generate lyrics for different sections
@@ -115,7 +144,7 @@ const HomePage = () => {
             <div className="flex items-center justify-center">
               <button
                 className="bg-purple-500 w-1/2 sm:w-1/2 items-center text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-all duration-300"
-                onClick={() => setGenre("Pop")} // Sample random genre logic
+                onClick={handleRandomGenre} // Call the function directly
               >
                 Random Genre
               </button>
@@ -159,13 +188,13 @@ const HomePage = () => {
             <div className="flex justify-evenly space-x-3">
               <button
                 className="bg-purple-500 w-1/2 sm:w-1/3 items-center text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-all duration-300"
-                onClick={() => setBaseWords("Love")}
+                onClick={handleWord} // Call the function directly
               >
                 Word
               </button>
               <button
                 className="bg-purple-500 w-1/2 sm:w-1/3 items-center text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-all duration-300"
-                onClick={() => setBaseWords("Night, Dream")}
+                onClick={handleSuggestions} // Call the function directly
               >
                 Suggestions
               </button>
