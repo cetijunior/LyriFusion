@@ -28,7 +28,7 @@ const ProfilePage = () => {
         playsInline
           className="absolute top-0 left-0 w-full h-full object-cover z-0"  // z-0 keeps it behind other elements without negative values
       >
-        <source src="/public/videos/bgVid1.mp4" type="video/mp4" />
+        <source src="/public/videos/background-video1.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
