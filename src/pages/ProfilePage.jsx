@@ -32,7 +32,7 @@ const ProfilePage = () => {
         Your browser does not support the video tag.
       </video>
 
-      <h1 className="text-5xl font-bold text-purple-800 mb-12 text-center">Your Projects</h1>
+      <h1 className="text-5xl font-bold text-white mb-12 text-center">Your Projects</h1>
 
       <div className="max-w-4xl mx-auto">
         {projects.length > 0 ? (
