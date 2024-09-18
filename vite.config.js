@@ -4,6 +4,7 @@ import tailwindcss from 'tailwindcss';
 import { visualizer } from 'rollup-plugin-visualizer'; // Add visualizer to analyze bundle size
 
 export default defineConfig({
+  base: '/', // Make sure this is correct if deploying in a subdirectory
   plugins: [
     react(),
     visualizer({
