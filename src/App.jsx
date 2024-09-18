@@ -4,6 +4,7 @@ import HomePage from './pages/HomePage';
 import MusicPage from './pages/MusicPage';
 import MagicPage from './pages/MagicPage';
 import ProfilePage from './pages/ProfilePage';
+import './App.css'
 
 function App() {
   return (

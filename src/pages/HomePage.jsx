@@ -3,15 +3,87 @@ import Navbar from "../components/Navbar";
 import { generateLyricsWithCohere } from '../api/cohereService';
 import { FiClipboard } from 'react-icons/fi';
 
+import CustomSliderWithTicks from '../components/CustomSlider';
+import CustomButton from '../components/CustomButton';
+
+
 
 const genres = [
   "Pop", "Rock", "Hip-Hop", "Jazz", "Classical", "Blues", "Country",
   "Reggae", "R&B", "Electronic", "Folk", "Metal", "Soul", "Punk", "Latin",
-  "Dance", "Indie", "Gospel", "Funk", "Disco", "Grunge", "Ska", "Alternative"
+  "Dance", "Indie", "Gospel", "Funk", "Disco", "Grunge", "Alternative",
+  "Trap", "EDM", "House", "Drum & Bass", "Synthwave", "Lo-Fi", "Acoustic", 
+  "Experimental", "Chillwave", "Folk-Pop", "Neo-Soul", "Psychedelic", "Ambient"
 ];
 
-const commonWords = ["Love", "Night", "Dream", "Heart", "Star", "Light", "Moon", "Fire", "Sky", "Tears", "Rain"];
-const wordCombinations = ["Broken heart", "Endless night", "Shining star", "Burning fire", "Lonely sky", "Falling rain", "Midnight dream", "Golden light"];
+
+const commonWords = [
+  "Love", "Heartbreak", "Dream", "Memories", "Moon", "Flame", "Shadow", 
+  "Fire", "Rain", "Tears", "Sky", "Loneliness", "Hope", "Stars", "Echo", 
+  "Light", "Waves", "Dust", "Sunset", "Storm", "Whisper", "Pain", "Ghost", 
+  "Silence", "Fate", "Freedom", "Rebellion", "Passion", "Fear"
+];
+const wordCombinations = [
+  // Love and Emotions
+  "Broken heart, Sadness, Lost love",
+  "Eternal love, Soulmates, Forever together",
+  "First love, Innocence, Butterflies",
+  "Unrequited love, Loneliness, Yearning",
+  
+  // Hope and Dreams
+  "Dreams, Hope, Future",
+  "Chasing dreams, Stars, Endless night",
+  "New beginnings, Rising sun, Dawn",
+  "Faith, Overcoming, Light in darkness",
+  
+  // Power and Ambition
+  "Money, Power, Fame",
+  "Ambition, Success, Fortune",
+  "Victory, Leadership, Conquer",
+  "Empire, Glory, Wealth",
+  
+  // Betrayal and Anger
+  "Anger, Betrayal, Snakes",
+  "Lies, Backstab, Deceit",
+  "Trust, Broken, False friends",
+  "Revenge, Karma, Justice",
+  
+  // Struggle and Perseverance
+  "Struggle, Survival, Hardship",
+  "Fighting, Resilience, Strength",
+  "Rising again, Phoenix, Triumph",
+  "Warrior, Determination, Battle scars",
+  
+  // Loneliness and Reflection
+  "Lonely night, Silent moon, Solitude",
+  "Reflection, Self-discovery, Inner thoughts",
+  "Isolation, Lost, Empty roads",
+  "Whispers in the dark, Forgotten, Ghosts",
+  
+  // Freedom and Rebellion
+  "Freedom, Rebellion, Breaking chains",
+  "Independence, No regrets, Free spirit",
+  "Running wild, No rules, Outlaws",
+  "Chasing freedom, Boundless, Open road",
+  
+  // Darkness and Mystery
+  "Shadows, Secrets, Mystery",
+  "Night, Moonlight, Dark forest",
+  "Whispering winds, Hidden paths, Unknown",
+  "Fog, Mist, Lost in time",
+  
+  // Nature and Elements
+  "Ocean, Waves, Infinite horizon",
+  "Fire, Flame, Burning desire",
+  "Storm, Thunder, Chaos",
+  "Rain, Falling leaves, Autumn breeze",
+  
+  // Life and Death
+  "Life, Death, Circle of existence",
+  "Immortality, Soul, Eternal sleep",
+  "Grief, Loss, Memories",
+  "Final goodbye, Rebirth, Afterlife"
+];
 
 
 const HomePage = () => {
@@ -24,6 +96,7 @@ const HomePage = () => {
   const [sectionCount, setSectionCount] = useState({ verse: 1, chorus: 1, hook: 1 }); // Track verse/chorus/hook counts
   const [hasGenerated, setHasGenerated] = useState(false); // Track if lyrics have been generated yet
 
+  
   // Function to copy all lyrics to clipboard
   const handleCopyAllToClipboard = () => {
     const allLyricsText = lyrics.map(section => section.text).join('\n\n');
@@ -53,38 +126,52 @@ const HomePage = () => {
   };
 
   // Function to generate lyrics for different sections
-  const handleGenerateLyrics = async (sectionType = "verse") => {
+  const handleGenerateLyrics = async (sectionType ) => {
+          // Validation checks
+      if (!genre || !tempo || !baseWords) {
+        setError("Please fill out all fields before generating lyrics.");
+        return;
+      }
+
+      if (isNaN(tempo) || tempo < 60 || tempo > 200) {
+        setError("Please provide a valid tempo between 60 and 200.");
+        return;
+      }
+      
     setIsLoading(true);
     setError(""); // Clear previous error
     try {
-      let prompt = `You are a songwriter creating emotionally resonant and creative lyrics for a song. The genre is ${genre}, and the lyrics should reflect this style with depth and artistic expression. The tempo is ${tempo} but should not be mentioned in the lyrics.\n\nTake inspiration from ${baseWords}, and weave them into the lyrics naturally. Avoid directly mentioning numbers like BPM or overt references to fame, drugs, or money unless they serve a deeper metaphorical purpose. Focus on conveying emotions, telling a story, and painting vivid imagery. Be poetic, heartfelt, and human-like, and avoid clichés.\n\nWrite a ${sectionType} that feels authentic, with a rich sense of emotion and rhythm. The song should feel like it comes from the heart, capturing the listener’s attention with thought-provoking language, original metaphors, and creative wordplay.`;
+      let prompt = `You are a songwriter creating emotionally resonant and creative lyrics for a song. The genre is ${genre}, and the lyrics should reflect this style with depth and artistic expression. The tempo is ${tempo} but should not be mentioned in the lyrics.
+      \n\nTake inspiration from ${baseWords}, and weave them into the lyrics naturally. Avoid directly mentioning numbers like BPM or overt references to fame, drugs, or money unless they serve a deeper metaphorical purpose. Focus on conveying emotions, telling a story, 
+      and painting vivid imagery. Be poetic, heartfelt, and human-like, and avoid clichés.\n\nWrite a ${sectionType} that feels authentic, with a rich sense of emotion and rhythm. The song should feel like it comes from the heart, capturing the listener’s attention with 
+      thought-provoking language, original metaphors, and creative wordplay.`;
 
       // If there are existing lyrics, modify the prompt to take inspiration without repeating them
       if (lyrics.length > 0) {
         const previousSection = lyrics[lyrics.length - 1].text;
         // eslint-disable-next-line no-unused-vars
-        prompt = `Write a ${sectionType} inspired by the following content without repeating it:\n\n"${previousSection}". Ensure it adds to the story of the song.`;
+        prompt = `Write a ${sectionType} inspired by the following content without repeating it:\n\n"${previousSection}". Ensure it adds to the story of the song. The ${sectionType} should seamlessly follow this content while adding a new perspective.`;
       }
-
+  
       // Call Cohere to generate the lyrics
       const generatedLyrics = await generateLyricsWithCohere(genre, tempo, baseWords, sectionType);
-
+  
       // Add the new section with a label
       const newSection = {
         type: sectionType,
         text: generatedLyrics,
         count: sectionCount[sectionType], // Use the current count for the section
       };
-
+  
       // Append the new section to the lyrics array
       setLyrics((prevLyrics) => [...prevLyrics, newSection]);
-
+  
       // Increment the section count for that specific section type
       setSectionCount((prevCount) => ({
         ...prevCount,
         [sectionType]: prevCount[sectionType] + 1,
       }));
-
+  
       setHasGenerated(true); // Indicate that lyrics have been generated
     } catch (err) {
       console.error("Error generating lyrics:", err);
@@ -101,24 +188,54 @@ const HomePage = () => {
   };
 
   return (
-    <div
-        className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center px-4 sm:px-6 pt-10"
-        style={{
-          backgroundImage: "url('/images/designer-1.jpeg')",
-          backgroundBlendMode: "overlay",
-        }}
-        
-      >
+    
+    <div className="relative min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 pt-10">
+      
+    {/* Background Video */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute top-0 left-0 w-full h-full object-cover z-0"  // z-0 keeps it behind other elements without negative values
+        >
+          <source src="/videos/background-video.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+
+    
+    {/* <div
+      className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center px-4 sm:px-6 pt-10"
+      style={{
+        backgroundImage: "url('/images/designer-1.jpeg')", // Ensure the correct path to the image
+        backgroundSize: "cover",           // Ensures the image covers the container without stretching
+        backgroundRepeat: "no-repeat",     // Prevents the image from repeating
+        backgroundAttachment: "fixed",     // Keeps the background fixed during scrolling
+        backgroundPosition: "center",      // Centers the background image
+        backgroundBlendMode: "overlay",
+      }}
+    >
+    */} 
+
       <Navbar />
 
       <div className="text-center pt-10 flex flex-col items-center w-full">
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-purple-800 mb-6 transition-all duration-500 ease-in-out">
+      {/*}
+      <img
+        src="/images/LyriMP.png" // Ensure this path is correct
+        alt="LyriFusion Logo"
+        className=""  // No height/width restriction, logo will take its original dimensions
+      />
+     
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-purple-800 hover:text-purple-600 mb-6 transition-all duration-500 ease-in-out">
           LyriFusion
         </h1>
 
-        <div className="rounded-lg p-4 bg-white bg-opacity-10 backdrop-blur-lg mt-6 border border-gray-300 text-lg text-white w-full max-w-sm sm:max-w-3xl">
-          <p className="text-xl text-gray-800 font-bold">Getting Started</p>
-          <ul className="text-left text-md text-gray-600 mt-4 space-y-3">
+         */}
+
+        <div className="rounded-lg p-4 bg-gray-800 border-transparent lg:bg-opacity-50 bg-opacity-20 backdrop-blur-sm mt-6 border hover:scale-105 transition-transform duration-500 text-lg text-violet-700 w-full max-w-sm sm:max-w-3xl">
+          <p className="text-xl font-bold ">Getting Started</p>
+          <ul className="text-left text-md  mt-4 space-y-3">
             <li><span className="font-bold">1.</span> Select your genre.</li>
             <li><span className="font-bold">2.</span> Set the tempo of the lyrics.</li>
             <li><span className="font-bold">3.</span> Provide base words to generate personalized lyrics.</li>
@@ -129,101 +246,101 @@ const HomePage = () => {
       <div className="items-center w-full md:w-11/12 lg:w-full mx-auto mt-12">
         
         {/* Form for genre, tempo, and base words */}
-        <div className="p-6 sm:p-8 rounded-xl backdrop-blur-lg bg-white bg-opacity-30 border border-gray-300 space-y-8 lg:space-x-8 lg:py-10 lg:space-y-0 lg:flex lg:justify-between lg:items-start shadow-lg">
+        <div className="p-6 sm:p-8 rounded-xl backdrop-blur-sm bg-gray-800 lg:bg-opacity-50 bg-opacity-30 border-2 border-transparent space-y-8 lg:space-x-8 lg:py-10 lg:space-y-0 lg:flex lg:justify-between lg:items-start shadow-lg lg:hover:scale-105 lg:hover:px-16 transition-all duration-500">
           
           {/* Genre */}
-          <div className="w-full lg:w-1/3 flex flex-col  space-y-3">
+          <div className="w-full lg:w-1/3 flex flex-col space-y-3">
             <label className="block text-purple-800 text-lg font-medium mb-2">
               Genre
             </label>
             <input
-              className="border-2 border-purple-400 bg-inherit text-gray-900 placeholder-gray-700 rounded-lg w-full py-3 px-5 text-base focus:outline-none focus:ring-4 focus:ring-purple-500 transition-all duration-300"
+              className="border-2 border-transparent bg-gray-900 text-white placeholder-gray-700 rounded-lg w-full py-3 px-5 text-base focus:outline-none focus:ring-2 focus:ring-purple-900 transition-all duration-300"
               type="text"
               placeholder="e.g., Pop, Rock"
               value={genre}
               onChange={(e) => setGenre(e.target.value)}
-            />
+            />          
             <div className="flex items-center justify-center">
-              <button
-                className="bg-purple-500 w-1/2 sm:w-1/2 items-center text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-all duration-300"
-                onClick={handleRandomGenre} // Call the function directly
-              >
-                Random Genre
-              </button>
+              <CustomButton label="Random Genre" onClick={handleRandomGenre} />
             </div>
           </div>
 
+
           {/* Tempo */}
           <div className="w-full lg:w-1/3 flex flex-col space-y-3">
-            <label className="block text-purple-800 text-lg font-medium mb-2">
+          <label className="block text-purple-600 lg:text-2xl md:text-xl text-lg font-Bold mb-2">
               Tempo
             </label>
             <input
-              className="border-2 border-purple-400 bg-inherit text-gray-900 placeholder-gray-700 rounded-lg w-full py-3 px-5 text-base focus:outline-none focus:ring-4 focus:ring-purple-500 transition-all duration-300"
+              className="border-2 border-transparent bg-opacity-60 backdrop-blur-sm bg-gray-800 text-white placeholder-gray-300 rounded-lg w-full py-3 px-5 text-base focus:outline-none focus:ring-2 focus:ring-purple-900 transition-all duration-300"
               type="text"
               placeholder="e.g., Slow, Fast"
               value={tempo}
               onChange={(e) => setTempo(e.target.value)}
             />
-            <input
-              type="range"
-              min="60"
-              max="200"
-              value={tempo}
-              onChange={(e) => setTempo(e.target.value)}
-              className="w-full transition-all duration-300 focus:outline-none focus:ring-transparent focus:ring-purple-400"
+            <div className="p-2">
+            <CustomSliderWithTicks
+              min={60}
+              max={200}
+              value={130}
+              step={1}
+              tickCount={14} // Number of tick marks
+              onChange={(newValue) => setTempo(newValue)}
             />
+            </div>
           </div>
 
           {/* Base Words */}
           <div className="w-full lg:w-1/3 flex flex-col space-y-3">
-            <label className="block text-purple-800 text-lg font-medium mb-2">
+          <label className="block text-purple-600 lg:text-2xl md:text-xl text-lg font-Bold mb-2">
               Base Words
             </label>
             <input
-              className="border-2 border-purple-400 bg-inherit text-gray-900 placeholder-gray-700 rounded-lg w-full py-3 px-5 text-base focus:outline-none focus:ring-4 focus:ring-purple-500 transition-all duration-300"
+              className="border-2 border-transparent bg-opacity-60 backdrop-blur-sm bg-gray-800 text-white placeholder-gray-300 rounded-lg w-full py-3 px-5 text-base focus:outline-none focus:ring-2 focus:ring-purple-900 transition-all duration-300"
               type="text"
               placeholder="e.g., Love, Night, Dream"
               value={baseWords}
               onChange={(e) => setBaseWords(e.target.value)}
             />
             <div className="flex justify-evenly space-x-3">
-              <button
-                className="bg-purple-500 w-1/2 sm:w-1/3 items-center text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-all duration-300"
-                onClick={handleWord} // Call the function directly
-              >
-                Word
-              </button>
-              <button
-                className="bg-purple-500 w-1/2 sm:w-1/3 items-center text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-all duration-300"
-                onClick={handleSuggestions} // Call the function directly
-              >
-                Suggestions
-              </button>
+            <CustomButton label="Word" onClick={handleWord} />
+            <CustomButton label="Suggestions" onClick={handleSuggestions} />
             </div>
           </div>
         </div>
 
-        {/* Generate Lyrics Button */}
-        <div className="flex items-center justify-center">
+
+
+      {/* Generate Lyrics Button */}
+        <div className="relative w-full flex justify-center mt-8 group">
           <button
-            className="bg-gradient-to-r from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white font-bold lg:py-4 py-3  rounded-lg lg:w-1/2 w-8/12 lg:text-xl text-lg transition-all duration-300 shadow-md hover:shadow-lg mt-8"
+            className="relative lg:w-1/3 md:w-1/2 sm:w-1/2 px-12 sm:px-0 h-14 flex justify-center items-center rounded-full bg-gray-800 backdrop-blur-sm bg-opacity-5 border border-gray-500 text-white font-semibold text-lg transition-all duration-500 shadow-lg hover:shadow-2xl hover:scale-105 hover:tracking-wider overflow-hidden"
             onClick={() => handleGenerateLyrics('verse')}
             disabled={isLoading}
           >
             {isLoading ? "Generating Lyrics..." : "Generate Lyrics"}
+
+            {/* Shine effect - constrained within button */}
+            <div className="absolute inset-0 z-[-1] transition-transform duration-500 overflow-hidden">
+              <div className="absolute w-full h-full bg-violet-700 bg-gradient-to-r from-white/10 to-violet-900 transform -translate-x-full transition-transform duration-500 group-hover:translate-x-full"></div>
+            </div>
           </button>
         </div>
 
+
+
+
+
         {/* Generated Lyrics or Error Message */}
-        <div className="flex flex-col justify-center mt-8 p-6 bg-white bg-opacity-20 backdrop-blur-lg rounded-lg shadow-md">
+        <div className="flex flex-col justify-center mt-8 p-6 mb-10 lg:hover:scale-105 lg:hover:px-16 transform-all duration-500 bg-gray-800 bg-opacity-20 backdrop-blur-sm rounded-lg shadow-md">
          
                    {/* Single Copy All Button */}
 
         {hasGenerated && (
             <div className="flex justify-end ">
               <button
-                className=" text-purple-500 -mt-2 hover:scale-125 hover:text-purple-700 transition-all duration-300"
+                aria-label="Copy all lyrics to clipboard"
+                className="text-purple-500 -mt-2 hover:scale-125 hover:text-purple-700 transition-all duration-300"
                 onClick={handleCopyAllToClipboard}
               >
                 <FiClipboard size={28} />
@@ -233,10 +350,10 @@ const HomePage = () => {
          
           {lyrics.map((section, index) => (
             <div key={index} className="mb-6">
-              <h2 className="text-2xl font-bold text-purple-800  mb-2">
+              <h2 className="text-2xl font-bold text-purple-600  mb-2">
                 {getSectionLabel(section.type, section.count)}
               </h2>
-              <p className="text-gray-800 whitespace-pre-wrap">{section.text}</p>
+              <p className="text-gray-300 whitespace-pre-wrap">{section.text}</p>
             </div>
           ))}
 
@@ -250,26 +367,18 @@ const HomePage = () => {
 
           {/* Buttons for adding more sections */}
           {hasGenerated && (
-            <div className="flex flex-col lg:space-x-20 lg:flex-row lg:justify-evenly mt-8">
-              <button
-                className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full lg:w-1/3 mb-4 lg:mb-0"
-                onClick={() => handleGenerateLyrics('verse')}
-              >
-                Add Verse
-              </button>
-              <button
-                className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full lg:w-1/3 mb-4 lg:mb-0"
-                onClick={() => handleGenerateLyrics('chorus')}
-              >
-                Add Chorus
-              </button>
-              <button
-                className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full lg:w-1/3"
-                onClick={() => handleGenerateLyrics('hook')}
-              >
-                Add Hook
-              </button>
-            </div>
+         <div className="flex flex-col lg:flex-row justify-center items-center mt-8 w-full space-y-4 lg:space-y-0 lg:space-x-4">
+         <div className="w-full lg:w-1/3 flex justify-center">
+           <CustomButton label="Add Verse" onClick={() => handleGenerateLyrics('verse')} />
+         </div>
+         <div className="w-full lg:w-1/3 flex justify-center">
+           <CustomButton label="Add Chorus" onClick={() => handleGenerateLyrics('chorus')} />
+         </div>
+         <div className="w-full lg:w-1/3 flex justify-center">
+           <CustomButton label="Add Hook" onClick={() => handleGenerateLyrics('hook')} />
+         </div>
+       </div>
+       
           )}
           
         </div>

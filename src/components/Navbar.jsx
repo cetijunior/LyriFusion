@@ -15,28 +15,28 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed z-20 top-0 left-0 w-full bg-inherit backdrop-blur-sm p-4" 
-      style={{ background: "linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0))" }}>
+    <nav className="fixed z-20 top-0 left-0 w-full bg-gray-800 bg-opacity-20 backdrop-blur-sm p-4 border-b border-violet-800 transition-transform duration-500 ">
       <div className="flex justify-between items-center">
-        <h1
-          className="cursor-pointer text-2xl font-bold text-purple-800 hover:text-purple-900 transition-colors"
-          onClick={handleLogoClick}
-        >
-          LyriFusion
-        </h1>
-        <ul className="flex space-x-8 text-md text-purple-600">
+      <img
+        src="/images/LyriFusion.png" // Ensure this path is correct
+        alt="LyriFusion Logo"
+        className="h-8 w-38 hover:scale-105 transform-all duration-500  "  // No height/width restriction, logo will take its original dimensions
+        onClick={handleLogoClick}
+      />
+       
+        <ul className="flex space-x-8 text-md text-purple-800">
           <li>
-            <Link to="/music" className="hover:text-purple-900 transition-colors">
+            <Link to="/music" className="hover:text-purple-600 duration-500 transition-colors">
               Music
             </Link>
           </li>
           <li>
-            <Link to="/magic" className="hover:text-purple-900 transition-colors">
+            <Link to="/magic" className="hover:text-purple-600 duration-500 transition-colors">
               Magic
             </Link>
           </li>
           <li>
-            <Link to="/profile" className="hover:text-purple-900 transition-colors">
+            <Link to="/profile" className="hover:text-purple-600 duration-500 transition-all">
               Profile
             </Link>
           </li>
