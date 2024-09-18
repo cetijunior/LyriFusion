@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Navbar from "../components/Navbar";
 import { generateLyricsWithCohere } from '../api/cohereService';
-import { FiClipboard } from 'react-icons/fi';
+import {FiTrash2, FiClipboard, FiPlus  } from 'react-icons/fi';
+
 
 import CustomSliderWithTicks from '../components/CustomSlider';
 import CustomButton from '../components/CustomButton';
@@ -95,39 +96,26 @@ const HomePage = () => {
   const [error, setError] = useState(""); // Error state
   const [sectionCount, setSectionCount] = useState({ verse: 1, chorus: 1, hook: 1 }); // Track verse/chorus/hook counts
   const [hasGenerated, setHasGenerated] = useState(false); // Track if lyrics have been generated yet
+  const [showAddButtons, setShowAddButtons] = useState(false); // Control the visibility of buttons on small screens
 
-  
-  // Function to copy all lyrics to clipboard
-  const handleCopyAllToClipboard = () => {
-    const allLyricsText = lyrics.map(section => section.text).join('\n\n');
-    navigator.clipboard.writeText(allLyricsText).then(() => {
-      alert("All lyrics copied to clipboard!");
-    }).catch((err) => {
-      console.error("Failed to copy lyrics: ", err);
-    });
+  const handleToggleAddButtons = () => {
+    setShowAddButtons(!showAddButtons); // Toggle visibility on click for small screens
   };
 
-  // Function to handle random genre
-  const handleRandomGenre = () => {
-    const randomGenre = genres[Math.floor(Math.random() * genres.length)];
-    setGenre(randomGenre);
-  };
+  const bottomRef = useRef(null);
 
-  // Function to handle Word button
-  const handleWord = () => {
-    const randomWord = commonWords[Math.floor(Math.random() * commonWords.length)];
-    setBaseWords(randomWord);
-  };
+    // Retrieve saved lyrics from localStorage when the component loads
+    useEffect(() => {
+      const savedLyrics = localStorage.getItem('savedLyrics');
+      if (savedLyrics) {
+        setLyrics(JSON.parse(savedLyrics));
+        setHasGenerated(true);  // Set hasGenerated to true if there are saved lyrics
+      }
+    }, []);
 
-  // Function to handle Suggestions button
-  const handleSuggestions = () => {
-    const randomSuggestion = wordCombinations[Math.floor(Math.random() * wordCombinations.length)];
-    setBaseWords(randomSuggestion);
-  };
-
-  // Function to generate lyrics for different sections
-  const handleGenerateLyrics = async (sectionType ) => {
-          // Validation checks
+    // Function to generate lyrics for different sections
+      const handleGenerateLyrics = async (sectionType ) => {
+        // Validation checks
       if (!genre || !tempo || !baseWords) {
         setError("Please fill out all fields before generating lyrics.");
         return;
@@ -137,10 +125,10 @@ const HomePage = () => {
         setError("Please provide a valid tempo between 60 and 200.");
         return;
       }
-      
-    setIsLoading(true);
-    setError(""); // Clear previous error
-    try {
+
+      setIsLoading(true);
+      setError(""); // Clear previous error
+      try {
       let prompt = `You are a songwriter creating emotionally resonant and creative lyrics for a song. The genre is ${genre}, and the lyrics should reflect this style with depth and artistic expression. The tempo is ${tempo} but should not be mentioned in the lyrics.
       \n\nTake inspiration from ${baseWords}, and weave them into the lyrics naturally. Avoid directly mentioning numbers like BPM or overt references to fame, drugs, or money unless they serve a deeper metaphorical purpose. Focus on conveying emotions, telling a story, 
       and painting vivid imagery. Be poetic, heartfelt, and human-like, and avoid clichés.\n\nWrite a ${sectionType} that feels authentic, with a rich sense of emotion and rhythm. The song should feel like it comes from the heart, capturing the listener’s attention with 
@@ -152,41 +140,86 @@ const HomePage = () => {
         // eslint-disable-next-line no-unused-vars
         prompt = `Write a ${sectionType} inspired by the following content without repeating it:\n\n"${previousSection}". Ensure it adds to the story of the song. The ${sectionType} should seamlessly follow this content while adding a new perspective.`;
       }
-  
+
       // Call Cohere to generate the lyrics
       const generatedLyrics = await generateLyricsWithCohere(genre, tempo, baseWords, sectionType);
-  
-      // Add the new section with a label
       const newSection = {
         type: sectionType,
         text: generatedLyrics,
-        count: sectionCount[sectionType], // Use the current count for the section
+        count: sectionCount[sectionType],
       };
-  
-      // Append the new section to the lyrics array
-      setLyrics((prevLyrics) => [...prevLyrics, newSection]);
-  
+
+      const updatedLyrics = [...lyrics, newSection];
+      setLyrics(updatedLyrics);
+
       // Increment the section count for that specific section type
       setSectionCount((prevCount) => ({
         ...prevCount,
         [sectionType]: prevCount[sectionType] + 1,
       }));
-  
+
+
+      localStorage.setItem('savedLyrics', JSON.stringify(updatedLyrics));
+
       setHasGenerated(true); // Indicate that lyrics have been generated
-    } catch (err) {
+      } catch (err) {
       console.error("Error generating lyrics:", err);
       setError(err.message || "An error occurred, please try again."); // Set the error message
-    } finally {
+      } finally {
       setIsLoading(false);
-    }
+      }
+      };
+  
+  // Function to copy all lyrics to clipboard
+  const handleCopyAllToClipboard = () => {
+    const allLyricsText = lyrics.map(section => section.text).join('\n\n');
+    navigator.clipboard.writeText(allLyricsText).then(() => {
+      alert("All lyrics copied to clipboard!");
+    }).catch((err) => {
+      console.error("Failed to copy lyrics: ", err);
+    });
+  };
+  
+  
+  const clearSavedLyrics = () => {
+    localStorage.removeItem('savedLyrics');
+    setLyrics([]);
+    setSectionCount({ verse: 1, chorus: 1, hook: 1 }); // Reset section counts
+    setHasGenerated(false); // Reset the hasGenerated state
   };
 
+    // Scroll to the bottom when hasGenerated is true
+    useEffect(() => {
+      if (hasGenerated && bottomRef.current) {
+        bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, [hasGenerated]);
+  
   // Helper function to get the label for the section
   const getSectionLabel = (type, count) => {
     const typeCapitalized = type.charAt(0).toUpperCase() + type.slice(1);
     return `${typeCapitalized} ${count}`;
   };
-
+  
+  
+    // Function to handle random genre
+    const handleRandomGenre = () => {
+      const randomGenre = genres[Math.floor(Math.random() * genres.length)];
+      setGenre(randomGenre);
+    };
+  
+    // Function to handle Word button
+    const handleWord = () => {
+      const randomWord = commonWords[Math.floor(Math.random() * commonWords.length)];
+      setBaseWords(randomWord);
+    };
+  
+    // Function to handle Suggestions button
+    const handleSuggestions = () => {
+      const randomSuggestion = wordCombinations[Math.floor(Math.random() * wordCombinations.length)];
+      setBaseWords(randomSuggestion);
+    };
+  
   return (
     
     <div className="relative min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 pt-10">
@@ -246,15 +279,15 @@ const HomePage = () => {
       <div className="items-center w-full md:w-11/12 lg:w-full mx-auto mt-12">
         
         {/* Form for genre, tempo, and base words */}
-        <div className="p-6 sm:p-8 rounded-xl backdrop-blur-sm bg-gray-800 lg:bg-opacity-50 bg-opacity-30 border-2 border-transparent space-y-8 lg:space-x-8 lg:py-10 lg:space-y-0 lg:flex lg:justify-between lg:items-start shadow-lg lg:hover:scale-105 lg:hover:px-16 transition-all duration-500">
+        <div className="p-6 sm:p-8 rounded-xl backdrop-blur-sm bg-gray-800 lg:bg-opacity-50 bg-opacity-30 border-2 border-transparent space-y-8  lg:space-x-8 lg:py-10 lg:space-y-0 lg:flex lg:justify-between lg:items-start shadow-lg lg:hover:scale-105 lg:hover:px-16 transition-all duration-500">
           
           {/* Genre */}
           <div className="w-full lg:w-1/3 flex flex-col space-y-3">
-            <label className="block text-purple-800 text-lg font-medium mb-2">
+          <label className="block text-purple-600 lg:text-2xl md:text-xl text-lg font-Bold mb-2">
               Genre
             </label>
             <input
-              className="border-2 border-transparent bg-gray-900 text-white placeholder-gray-700 rounded-lg w-full py-3 px-5 text-base focus:outline-none focus:ring-2 focus:ring-purple-900 transition-all duration-300"
+              className="border-2 border-transparent bg-opacity-60 backdrop-blur-sm bg-gray-800 text-white placeholder-gray-300 rounded-lg w-full py-3 px-5 text-base focus:outline-none focus:ring-2 focus:ring-purple-900 transition-all duration-300"
               type="text"
               placeholder="e.g., Pop, Rock"
               value={genre}
@@ -303,8 +336,8 @@ const HomePage = () => {
               onChange={(e) => setBaseWords(e.target.value)}
             />
             <div className="flex justify-evenly space-x-3">
-            <CustomButton label="Word" onClick={handleWord} />
-            <CustomButton label="Suggestions" onClick={handleSuggestions} />
+              <CustomButton label="Word" onClick={handleWord} />
+              <CustomButton label="Suggestions" onClick={handleSuggestions} />
             </div>
           </div>
         </div>
@@ -337,14 +370,25 @@ const HomePage = () => {
                    {/* Single Copy All Button */}
 
         {hasGenerated && (
-            <div className="flex justify-end ">
+            <div className="flex flex-row items-center -mt-2 justify-end space-x-3 mb-2">
               <button
                 aria-label="Copy all lyrics to clipboard"
-                className="text-purple-500 -mt-2 hover:scale-125 hover:text-purple-700 transition-all duration-300"
+                className="text-purple-500 hover:scale-125 hover:text-purple-700 transition-all duration-300"
                 onClick={handleCopyAllToClipboard}
               >
                 <FiClipboard size={28} />
               </button>
+
+
+                {/* Clear Lyrics Button */}
+                <button
+                aria-label="Clear all lyrics"
+                className="text-red-500 hover:scale-125 hover:text-red-600 transition-all duration-300"
+                onClick={clearSavedLyrics}
+              >
+                <FiTrash2 size={28} />
+              </button>
+              
             </div>
           )}
          
@@ -359,27 +403,70 @@ const HomePage = () => {
 
           {/* Error Message */}
           {error && (
-            <div className="mt-8 p-6 bg-red-100 bg-opacity-90 backdrop-blur-lg rounded-lg shadow-md">
+            <div className="mb-8 mt-2 p-6 bg-red-100 bg-opacity-90 backdrop-blur-lg rounded-lg shadow-md">
               <h2 className="text-xl font-bold text-red-800 mb-4">Error:</h2>
               <p className="text-red-600 max-w-xs sm:max-w-md whitespace-normal break-words mx-auto">{error}</p>
             </div>
           )}
 
-          {/* Buttons for adding more sections */}
-          {hasGenerated && (
-         <div className="flex flex-col lg:flex-row justify-center items-center mt-8 w-full space-y-4 lg:space-y-0 lg:space-x-4">
-         <div className="w-full lg:w-1/3 flex justify-center">
-           <CustomButton label="Add Verse" onClick={() => handleGenerateLyrics('verse')} />
-         </div>
-         <div className="w-full lg:w-1/3 flex justify-center">
-           <CustomButton label="Add Chorus" onClick={() => handleGenerateLyrics('chorus')} />
-         </div>
-         <div className="w-full lg:w-1/3 flex justify-center">
-           <CustomButton label="Add Hook" onClick={() => handleGenerateLyrics('hook')} />
-         </div>
-       </div>
-       
-          )}
+          
+
+    {/* Add Buttons Group */}
+    {hasGenerated && (
+        <div className="relative flex justify-start mt-4 group">
+        <div className="relative">
+          {/* Plus Icon Button */}
+          <button
+            className="flex items-center justify-center w-12 h-12 rounded-full bg-violet-600 text-white hover:bg-violet-700 transition-all duration-300"
+            onClick={handleToggleAddButtons}
+          >
+            <FiPlus size={24} />
+          </button>
+  
+          {/* Buttons for large screens (hover-based) */}
+          <div className="absolute hidden lg:flex w-screen ml-10 items-center space-x-4 left-full -translate-y-1/2 transition-all duration-500 opacity-0 group-hover:opacity-100 top-1/2">
+            <div className="flex flex-row w-scree space-x-10 ">
+            <CustomButton
+              label="Add Verse"
+              className="w-32"
+              onClick={() => handleGenerateLyrics("verse")}
+            />
+            <CustomButton
+              label="Add Chorus"
+              className="w-32"
+              onClick={() => handleGenerateLyrics("chorus")}
+            />
+            <CustomButton
+              label="Add Hook"
+              className="w-32"
+              onClick={() => handleGenerateLyrics("hook")}
+            />
+            </div>
+          </div>
+  
+           {/* Buttons for small and medium screens (click-based) */}
+        <div className={`lg:hidden flex flex-col space-y-2 w-screen md:px-32 sm:px-16 md:-ml-16 sm:-ml-10 mt-4 transition-all duration-500 ${showAddButtons ? 'opacity-100 visible' : 'opacity-0 invisible h-0'}`}>
+          <CustomButton
+            label="Add Verse"
+            className="w-full"
+            onClick={() => handleGenerateLyrics("verse")}
+          />
+          <CustomButton
+            label="Add Chorus"
+            className="w-full"
+            onClick={() => handleGenerateLyrics("chorus")}
+          />
+          <CustomButton
+            label="Add Hook"
+            className="w-full"
+            onClick={() => handleGenerateLyrics("hook")}
+          />
+          </div>
+        </div>
+      </div>
+      )}
+
+          <div ref={bottomRef}></div>
           
         </div>
       </div>
