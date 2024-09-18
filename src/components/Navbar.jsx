@@ -26,8 +26,8 @@ const Navbar = () => {
        
         <ul className="flex space-x-8 items-center text-md text-purple-500">
           <li>
-            <Link to="/music" className="hover:text-purple-600 hover:shadow-2xl hover:shadow-violet-400 rounded-full px-2 font-bold hover:scale-110 duration-500 transition-all">
-              Music
+            <Link to="/lyrics" className="hover:text-purple-600 hover:shadow-2xl hover:shadow-violet-400 rounded-full px-2 font-bold hover:scale-110 duration-500 transition-all">
+             Lyric
             </Link>
           </li>
           <li>

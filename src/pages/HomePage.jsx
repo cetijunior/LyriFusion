@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from 'react-router-dom';
 import Navbar from "../components/Navbar";
 import { generateLyricsWithCohere } from '../api/cohereService';
-import {FiTrash2, FiClipboard, FiPlus  } from 'react-icons/fi';
+import {FiTrash2, FiClipboard, FiPlus, FiEdit, FiSave  } from 'react-icons/fi';
 
 
 import CustomSliderWithTicks from '../components/CustomSlider';
@@ -97,6 +98,7 @@ const HomePage = () => {
   const [sectionCount, setSectionCount] = useState({ verse: 1, chorus: 1, hook: 1 }); // Track verse/chorus/hook counts
   const [hasGenerated, setHasGenerated] = useState(false); // Track if lyrics have been generated yet
   const [showAddButtons, setShowAddButtons] = useState(false); // Control the visibility of buttons on small screens
+  const navigate = useNavigate(); // Use navigate to switch pages
 
   const handleToggleAddButtons = () => {
     setShowAddButtons(!showAddButtons); // Toggle visibility on click for small screens
@@ -220,6 +222,45 @@ const HomePage = () => {
       setBaseWords(randomSuggestion);
     };
   
+
+    const handleGoToMusicPage = () => {
+      if (!lyrics || lyrics.length === 0) {
+        alert("No lyrics to edit. Please generate some lyrics first.");
+        return;
+      }
+    
+      navigate("/lyrics", { state: { lyrics } });
+    };
+    
+    
+    
+
+    const handleSaveProject = () => {
+      const projectName = prompt("Enter a name for your project:", "Untitled Project");
+      if (!projectName) {
+        return;
+      }
+    
+      const newProject = {
+        id: Date.now().toString(), // Unique ID for the project
+        name: projectName,
+        lyrics: lyrics, // The current generated lyrics
+        createdAt: new Date().toISOString() // Save the creation date in ISO format
+      };
+    
+      // Fetch existing projects from local storage
+      const savedProjects = JSON.parse(localStorage.getItem("projects")) || [];
+      
+      // Save the new project
+      const updatedProjects = [...savedProjects, newProject];
+      localStorage.setItem("projects", JSON.stringify(updatedProjects));
+    
+      alert("Project saved successfully!");
+    };
+    
+    
+    
+    
   return (
     
     <div className="relative min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 pt-10">
@@ -361,9 +402,6 @@ const HomePage = () => {
         </div>
 
 
-
-
-
         {/* Generated Lyrics or Error Message */}
         <div className="flex flex-col justify-center mt-8 p-6 mb-10 lg:hover:scale-105 lg:hover:px-16 transform-all duration-500 bg-gray-800 bg-opacity-20 backdrop-blur-sm rounded-lg shadow-md">
          
@@ -371,25 +409,44 @@ const HomePage = () => {
 
         {hasGenerated && (
             <div className="flex flex-row items-center -mt-2 justify-end space-x-3 mb-2">
-              <button
-                aria-label="Copy all lyrics to clipboard"
-                className="text-purple-500 hover:scale-125 hover:text-purple-700 transition-all duration-300"
-                onClick={handleCopyAllToClipboard}
+            {/* Copy Lyrics Button */}
+            <button
+              aria-label="Copy all lyrics to clipboard"
+              className="p-2 rounded-lg flex items-center text-purple-500 hover:text-purple-700 transition-all duration-300 transform hover:scale-110"
+              onClick={handleCopyAllToClipboard}
+            >
+              <FiClipboard size={24} />
+            </button>
+          
+            {/* Save Project Button */}
+            <button
+              aria-label="Save project"
+              className="p-2 rounded-lg flex items-center text-green-500 hover:text-green-700 transition-all duration-300 transform hover:scale-110"
+              onClick={handleSaveProject}
+            >
+              <FiSave size={24} />
+            </button>
+          
+            {/* Edit in Music Page Button */}
+            <button
+              aria-label="Edit in Music Page"
+              className="p-2 rounded-lg flex items-center text-blue-500 hover:text-blue-700 transition-all duration-300 transform hover:scale-110"
+              onClick={handleGoToMusicPage}
               >
-                <FiClipboard size={28} />
-              </button>
-
-
-                {/* Clear Lyrics Button */}
-                <button
-                aria-label="Clear all lyrics"
-                className="text-red-500 hover:scale-125 hover:text-red-600 transition-all duration-300"
-                onClick={clearSavedLyrics}
-              >
-                <FiTrash2 size={28} />
-              </button>
-              
-            </div>
+              <FiEdit size={24} />
+            </button>
+          
+            {/* Clear Lyrics Button */}
+            <button
+              aria-label="Clear all lyrics"
+              className="p-2 rounded-lg flex items-center text-red-500 hover:text-red-700 transition-all duration-300 transform hover:scale-110"
+              onClick={clearSavedLyrics}
+            >
+              <FiTrash2 size={24} />
+            </button>
+          </div>
+          
+          
           )}
          
           {lyrics.map((section, index) => (
@@ -411,60 +468,60 @@ const HomePage = () => {
 
           
 
-    {/* Add Buttons Group */}
-    {hasGenerated && (
-        <div className="relative flex justify-start mt-4 group">
-        <div className="relative">
-          {/* Plus Icon Button */}
-          <button
-            className="flex items-center justify-center w-12 h-12 rounded-full bg-violet-600 text-white hover:bg-violet-700 transition-all duration-300"
-            onClick={handleToggleAddButtons}
-          >
-            <FiPlus size={24} />
-          </button>
-  
-          {/* Buttons for large screens (hover-based) */}
-          <div className="absolute hidden lg:flex w-screen ml-10 items-center space-x-4 left-full -translate-y-1/2 transition-all duration-500 opacity-0 group-hover:opacity-100 top-1/2">
-            <div className="flex flex-row w-scree space-x-10 ">
-            <CustomButton
-              label="Add Verse"
-              className="w-32"
-              onClick={() => handleGenerateLyrics("verse")}
-            />
-            <CustomButton
-              label="Add Chorus"
-              className="w-32"
-              onClick={() => handleGenerateLyrics("chorus")}
-            />
-            <CustomButton
-              label="Add Hook"
-              className="w-32"
-              onClick={() => handleGenerateLyrics("hook")}
-            />
+          {/* Add Buttons Group */}
+          {hasGenerated && (
+              <div className="relative flex justify-start mt-4 group">
+              <div className="relative">
+                {/* Plus Icon Button */}
+                <button
+                  className="flex items-center justify-center w-12 h-12 rounded-full bg-violet-600 text-white hover:bg-violet-700 transition-all duration-300"
+                  onClick={handleToggleAddButtons}
+                >
+                  <FiPlus size={24} />
+                </button>
+        
+                {/* Buttons for large screens (hover-based) */}
+                <div className="absolute hidden lg:flex w-screen ml-10 items-center space-x-4 left-full -translate-y-1/2 transition-all duration-500 opacity-0 group-hover:opacity-100 top-1/2">
+                  <div className="flex flex-row w-scree space-x-10 ">
+                  <CustomButton
+                    label="Add Verse"
+                    className="w-32"
+                    onClick={() => handleGenerateLyrics("verse")}
+                  />
+                  <CustomButton
+                    label="Add Chorus"
+                    className="w-32"
+                    onClick={() => handleGenerateLyrics("chorus")}
+                  />
+                  <CustomButton
+                    label="Add Hook"
+                    className="w-32"
+                    onClick={() => handleGenerateLyrics("hook")}
+                  />
+                  </div>
+                </div>
+        
+                {/* Buttons for small and medium screens (click-based) */}
+              <div className={`lg:hidden flex flex-col space-y-2 w-screen md:px-32 sm:px-16 md:-ml-16 sm:-ml-10 mt-4 transition-all duration-500 ${showAddButtons ? 'opacity-100 visible' : 'opacity-0 invisible h-0'}`}>
+                <CustomButton
+                  label="Add Verse"
+                  className="w-full"
+                  onClick={() => handleGenerateLyrics("verse")}
+                />
+                <CustomButton
+                  label="Add Chorus"
+                  className="w-full"
+                  onClick={() => handleGenerateLyrics("chorus")}
+                />
+                <CustomButton
+                  label="Add Hook"
+                  className="w-full"
+                  onClick={() => handleGenerateLyrics("hook")}
+                />
+                </div>
+              </div>
             </div>
-          </div>
-  
-           {/* Buttons for small and medium screens (click-based) */}
-        <div className={`lg:hidden flex flex-col space-y-2 w-screen md:px-32 sm:px-16 md:-ml-16 sm:-ml-10 mt-4 transition-all duration-500 ${showAddButtons ? 'opacity-100 visible' : 'opacity-0 invisible h-0'}`}>
-          <CustomButton
-            label="Add Verse"
-            className="w-full"
-            onClick={() => handleGenerateLyrics("verse")}
-          />
-          <CustomButton
-            label="Add Chorus"
-            className="w-full"
-            onClick={() => handleGenerateLyrics("chorus")}
-          />
-          <CustomButton
-            label="Add Hook"
-            className="w-full"
-            onClick={() => handleGenerateLyrics("hook")}
-          />
-          </div>
-        </div>
-      </div>
-      )}
+            )}
 
           <div ref={bottomRef}></div>
           
