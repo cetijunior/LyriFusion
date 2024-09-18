@@ -19,7 +19,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-screen px-4 sm:px-6 pt-10">
+    <div className="relative min-h-screen w-screen flex flex-col items-center justify-center px-4 sm:px-6 pt-20">
       {/* Background Video */}
       <video
         autoPlay
