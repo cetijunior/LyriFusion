@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+/* ================= THEME TOKENS ================= */
+:root {
+  /* Background gradient */
+  --bg-from: #eef2f7;      /* softer than slate-100 */
+  --bg-via:  #f7f7fb;      /* neutral, less yellow */
+  --bg-to:   #ffffff;
+
+  /* Text & surfaces */
+  --text:            #0b1220;   /* deep slate */
+  --muted:           #4b5563;   /* slate-600 */
+  --surface:         rgba(255,255,255,0.85); /* main panel */
+  --surface-strong:  rgba(255,255,255,0.92); /* navbar */
+  --panel-bg:        var(--surface);
+  --panel-border:    #e5e7eb;   /* slate-200 */
+  --panel-shadow:    0 10px 30px rgba(15, 23, 42, 0.07);
+
+  /* Navbar (less glossy) */
+  --nav-bg:          var(--surface-strong);
+  --nav-border:      rgba(0,0,0,0.06);
+
+  /* Accent (brand) */
+  --accent:          #c026d3;   /* fuchsia-600 */
+  --accent-600:      #a21caf;   /* darker variant */
+  --on-accent:       #ffffff;
+
+  /* Buttons / interactive */
+  --btn-surface:     rgba(255,255,255,0.7);
+  --btn-border:      rgba(0,0,0,0.08);
+  --on-surface:      var(--text);
+}
+
+html[data-theme="dark"] {
+  --bg-from: #0b1220;  /* deep slate night */
+  --bg-via:  #070b16;
+  --bg-to:   #000000;
+
+  --text:            #f8fafc;
+  --muted:           rgba(248,250,252,0.7);
+  --surface:         rgba(255,255,255,0.06);
+  --surface-strong:  rgba(20,22,26,0.75); /* navbar more solid, less glossy */
+  --panel-bg:        var(--surface);
+  --panel-border:    rgba(255,255,255,0.14);
+  --panel-shadow:    0 10px 30px rgba(0,0,0,0.45);
+
+  --nav-bg:          var(--surface-strong);
+  --nav-border:      rgba(255,255,255,0.12);
+
+  --accent:          #e879f9;  /* fuchsia-300/400 area for better contrast on dark */
+  --accent-600:      #d946ef;
+  --on-accent:       #0b1220;
+
+  --btn-surface:     rgba(255,255,255,0.10);
+  --btn-border:      rgba(255,255,255,0.18);
+  --on-surface:      var(--text);
+}
+
+/* ================= BASE & BACKGROUND ================= */
+html, body, #root { min-height: 100%; }
+body {
+  color: var(--text);
+  background:
+    radial-gradient(1200px 1200px at 20% -10%, var(--bg-from), transparent 60%),
+    radial-gradient(1200px 1200px at 100% 10%, var(--bg-via), transparent 60%),
+    linear-gradient(160deg, var(--bg-from), var(--bg-to));
+  /* subtle transition when toggling theme */
+  transition: color .25s ease, background .35s ease;
+  color-scheme: light dark;
+}
+
+/* ================= GLASS PANELS ================= */
+.glass {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  backdrop-filter: blur(16px);
+  border-radius: 1rem;
+  box-shadow: var(--panel-shadow);
+  transition: background .25s ease, border-color .25s ease, box-shadow .25s ease, backdrop-filter .25s ease;
+}
+
+/* ================= NAVBAR SURFACE ================= */
+.nav-surface {
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--nav-border);
+  backdrop-filter: blur(14px);
+  transition: background .25s ease, border-color .25s ease, backdrop-filter .25s ease;
+}
+
+/* ================= BUTTONS ================= */
+.btn {
+  @apply px-3 py-2 rounded-xl text-sm;
+  border: 1px solid var(--btn-border);
+  background: var(--btn-surface);
+  color: var(--on-surface);
+  transition: background .2s ease, border-color .2s ease, transform .05s ease;
+}
+.btn:hover { filter: brightness(1.03); }
+.btn:active { transform: translateY(1px); }
+
+/* Primary action (Generate, Save) */
+.btn-primary {
+  background: var(--accent);
+  color: var(--on-accent);
+  border: 1px solid var(--accent-600);
+}
+.btn-primary:hover { filter: brightness(1.03); }
+
+/* Ghost / outline */
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text);
+}
+.btn-ghost:hover {
+  background: var(--btn-surface);
+  border-color: var(--btn-border);
+}
+
+/* ================= SMALL UTILITIES ================= */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
